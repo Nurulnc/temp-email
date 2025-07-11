@@ -4,36 +4,54 @@ let lang = "en";
 
 async function generateAccount() {
   try {
+    console.log("Getting domains...");
     const domainRes = await fetch("https://api.mail.tm/domains");
+    if (!domainRes.ok) throw new Error("Domain fetch failed: " + domainRes.status);
     const domainData = await domainRes.json();
-    const domain = domainData["hydra:member"][0].domain;
+    const domains = domainData["hydra:member"];
+    if (!domains || domains.length === 0) throw new Error("No domains found");
+    const domain = domains[0].domain;
+    console.log("Using domain:", domain);
+
     const random = Math.random().toString(36).substring(2, 10);
     const email = `${random}@${domain}`;
     const password = "Temp123456!";
 
-    await fetch("https://api.mail.tm/accounts", {
+    console.log("Creating account:", email);
+    const createRes = await fetch("https://api.mail.tm/accounts", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ address: email, password })
     });
+    if (!createRes.ok) {
+      const errorData = await createRes.json();
+      throw new Error("Account creation failed: " + JSON.stringify(errorData));
+    }
 
+    console.log("Getting token...");
     const tokenRes = await fetch("https://api.mail.tm/token", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ address: email, password })
     });
-
+    if (!tokenRes.ok) {
+      const errorData = await tokenRes.json();
+      throw new Error("Token fetch failed: " + JSON.stringify(errorData));
+    }
     const tokenData = await tokenRes.json();
+
     token = tokenData.token;
     account = { email, password };
 
     document.getElementById("email").innerHTML = `📧 Email: <b>${email}</b>`;
     document.getElementById("otp").innerText = lang === "bn" ? "🔐 ওটিপির জন্য অপেক্ষা করুন..." : "🔐 Waiting for OTP...";
     document.getElementById("copyBtn").style.display = "none";
+
     checkInbox();
+
   } catch (err) {
-    document.getElementById("email").innerText = "❌ Failed to load email";
     console.error(err);
+    document.getElementById("email").innerText = `❌ Failed to load email: ${err.message}`;
   }
 }
 
@@ -43,6 +61,7 @@ async function checkInbox() {
     const res = await fetch("https://api.mail.tm/messages", {
       headers: { Authorization: `Bearer ${token}` }
     });
+    if (!res.ok) throw new Error("Inbox fetch failed: " + res.status);
     const data = await res.json();
 
     if (data["hydra:member"].length > 0) {
@@ -50,7 +69,9 @@ async function checkInbox() {
       const messageRes = await fetch(`https://api.mail.tm/messages/${message.id}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
+      if (!messageRes.ok) throw new Error("Message fetch failed: " + messageRes.status);
       const fullMessage = await messageRes.json();
+
       const otpMatch = fullMessage.text.match(/\d{4,8}/);
       if (otpMatch) {
         const otp = otpMatch[0];
@@ -58,11 +79,19 @@ async function checkInbox() {
         document.getElementById("copyBtn").style.display = "inline-block";
         document.getElementById("copyBtn").setAttribute("data-otp", otp);
         document.getElementById("otpSound").play();
+      } else {
+        document.getElementById("otp").innerText = lang === "bn" ? "❌ OTP পাওয়া যায়নি" : "❌ OTP not found";
+        document.getElementById("copyBtn").style.display = "none";
       }
+    } else {
+      document.getElementById("otp").innerText = lang === "bn" ? "🔐 ওটিপির জন্য অপেক্ষা করুন..." : "🔐 Waiting for OTP...";
+      document.getElementById("copyBtn").style.display = "none";
     }
+
   } catch (err) {
-    document.getElementById("otp").innerText = "❌ Failed to load OTP.";
     console.error(err);
+    document.getElementById("otp").innerText = `❌ Failed to load OTP: ${err.message}`;
+    document.getElementById("copyBtn").style.display = "none";
   }
 }
 
