@@ -19,6 +19,24 @@ h1 {
   box-shadow: 0 0 5px rgba(0,0,0,0.1);
   font-size: 18px;
 }
+
+.controls {
+  margin: 20px 0;
+}
+
+.controls button,
+.controls input {
+  padding: 10px 12px;
+  margin: 5px;
+  font-size: 16px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+}
+
+.controls input {
+  width: 200px;
+}
+
 footer {
   margin-top: 50px;
   font-size: 14px;
