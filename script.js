@@ -4,25 +4,23 @@ let login = "";
 
 const baseUrl = "https://www.1secmail.com/api/v1/";
 
-function generateRandomEmail() {
-  const name = "user" + Math.floor(Math.random() * 100000);
-  setupEmail(name);
-}
-
 function generateCustomEmail() {
+  const allowedDomains = ["wwjmp.com", "xojxe.com", "yoggm.com"];
   const name = document.getElementById("customName").value.trim();
+
   if (!name) {
     alert("Please enter a custom name.");
     return;
   }
-  setupEmail(name);
-}
 
-function setupEmail(name) {
-  domain = "1secmail.com";
-  login = name;
-  email = `${login}@${domain}`;
-  document.getElementById("email").innerHTML = `📧 Email: <b>${email}</b>`;
+  const randomDomain = allowedDomains[Math.floor(Math.random() * allowedDomains.length)];
+  const localPart = name.toLowerCase().replace(/\s+/g, "") + Math.floor(Math.random() * 100);
+
+  domain = randomDomain;
+  login = localPart;
+  email = `${localPart}@${domain}`;
+
+  document.getElementById("email").innerHTML = `📧 Email: <b>${email}</b> ✅`;
   document.getElementById("otp").innerText = "🔐 Waiting for OTP...";
 }
 
