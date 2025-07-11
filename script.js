@@ -24,7 +24,14 @@ async function createAccount(name = null) {
       body: JSON.stringify({ address: email, password })
     });
 
-    const data = await res.json();
+    const text = await res.text();
+    let data = {};
+    try {
+      data = JSON.parse(text);
+    } catch {
+      throw new Error("Invalid response from server (not JSON)");
+    }
+
     if (res.ok) {
       document.getElementById("email").innerHTML = `📧 Email: <b>${email}</b>`;
       return await login();
@@ -33,7 +40,7 @@ async function createAccount(name = null) {
     }
   } catch (err) {
     document.getElementById("email").innerText = `❌ Failed: ${err.message}`;
-    console.error(err);
+    console.error("Create account error:", err);
   }
 }
 
@@ -44,6 +51,7 @@ async function login() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ address: email, password })
     });
+
     const data = await res.json();
     if (data.token) {
       token = data.token;
@@ -54,6 +62,7 @@ async function login() {
     }
   } catch (err) {
     document.getElementById("otp").innerText = `❌ Login error: ${err.message}`;
+    console.error("Login error:", err);
     return false;
   }
 }
@@ -78,27 +87,4 @@ async function checkEmails() {
 
       const otpMatch = msg.text?.match(/\b\d{4,8}\b/);
       document.getElementById("otp").innerHTML = otpMatch
-        ? `🔐 OTP Found: <b>${otpMatch[0]}</b>`
-        : `📭 Email received, OTP not found.`;
-    } else {
-      document.getElementById("otp").innerText = "📭 No emails yet.";
-    }
-  } catch (err) {
-    console.error("Email check failed:", err);
-  }
-}
-
-function generateRandomEmail() {
-  createAccount(); // random
-}
-
-function generateCustomEmail() {
-  const name = document.getElementById("customName").value.trim();
-  if (!name) {
-    alert("Please enter a custom name.");
-    return;
-  }
-  createAccount(name);
-}
-
-generateRandomEmail();
+        ? `🔐 OTP Found
