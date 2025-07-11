@@ -1,42 +1,35 @@
-const banglaNames = ["nahid", "rifat", "sabbir", "tahsin", "rafi", "robin", "emran", "ratul", "imran", "jubayer", "sohan", "rashed", "farhan", "nafis", "hridoy", "tamim", "tanjim", "hossain", "shahin", "sajid", "sumona", "mim", "rima", "jannat", "tania", "shanta", "sadia", "faria", "mahi", "brishti"];
-const englishWords = ["wave", "cloud", "star", "light", "dream", "rain", "sky", "fire", "moon", "code", "wind", "stone", "sun", "leaf", "river", "dust", "path", "storm", "snow", "spark"];
-const allowedDomains = ["wwjmp.com", "xojxe.com", "yoggm.com"];
+let email = "";
+let lang = "en";
 
-let login = "", domain = "", email = "", lang = "en";
-
-function generateRandomEmail() {
-  const name = banglaNames[Math.floor(Math.random() * banglaNames.length)];
-  const word = englishWords[Math.floor(Math.random() * englishWords.length)];
-  const number = Math.floor(Math.random() * 100);
-  const localPart = name + word + number;
-  const randomDomain = allowedDomains[Math.floor(Math.random() * allowedDomains.length)];
-
-  login = localPart;
-  domain = randomDomain;
-  email = `${login}@${domain}`;
-  
-  document.getElementById("email").innerHTML = `📧 Email: <b>${email}</b>`;
-  document.getElementById("otp").innerText = lang === "bn" ? "🔐 ওটিপির জন্য অপেক্ষা করুন..." : "🔐 Waiting for OTP...";
-
-  checkInbox();
+async function generateEmail() {
+  try {
+    const res = await fetch("https://api.tempmail.lol/temp");
+    const data = await res.json();
+    email = data.address;
+    document.getElementById("email").innerHTML = `📧 Email: <b>${email}</b>`;
+    document.getElementById("otp").innerText = lang === "bn" ? "🔐 ওটিপির জন্য অপেক্ষা করুন..." : "🔐 Waiting for OTP...";
+    document.getElementById("copyBtn").style.display = "none";
+    checkInbox();
+  } catch (err) {
+    document.getElementById("email").innerText = "❌ Failed to load email";
+  }
 }
 
 async function checkInbox() {
-  if (!login || !domain) return;
-
+  if (!email) return;
   try {
-    const res = await fetch(`https://www.1secmail.com/api/v1/?action=getMessages&login=${login}&domain=${domain}`);
+    const res = await fetch(`https://api.tempmail.lol/mailbox/${email}`);
     const data = await res.json();
 
-    if (data.length > 0) {
-      const id = data[0].id;
-      const msgRes = await fetch(`https://www.1secmail.com/api/v1/?action=readMessage&login=${login}&domain=${domain}&id=${id}`);
-      const msg = await msgRes.json();
-
-      const otpMatch = msg.body.match(/\d{4,8}/);
+    if (data && data.length > 0) {
+      const latest = data[0];
+      const otpMatch = latest.text_body.match(/\d{4,8}/);
       if (otpMatch) {
-        document.getElementById("otp").innerHTML = `✅ OTP: <b>${otpMatch[0]}</b>`;
-        document.getElementById("otpSound").play(); // 🔔 Play sound
+        const otp = otpMatch[0];
+        document.getElementById("otp").innerHTML = `✅ OTP: <b>${otp}</b>`;
+        document.getElementById("copyBtn").style.display = "inline-block";
+        document.getElementById("copyBtn").setAttribute("data-otp", otp);
+        document.getElementById("otpSound").play();
       }
     }
   } catch (err) {
@@ -44,20 +37,24 @@ async function checkInbox() {
   }
 }
 
-// 🔄 Auto inbox refresh every 5 seconds
-setInterval(checkInbox, 5000);
-
-// 🌙 Theme toggle
-function toggleTheme() {
-  document.body.classList.toggle("dark");
-  const toggleBtn = document.getElementById("themeToggle");
-  toggleBtn.innerText = document.body.classList.contains("dark") ? "☀️ Light Mode" : "🌙 Dark Mode";
+function copyOTP() {
+  const otp = document.getElementById("copyBtn").getAttribute("data-otp");
+  if (!otp) return;
+  navigator.clipboard.writeText(otp).then(() => {
+    const btn = document.getElementById("copyBtn");
+    btn.innerText = "✅ Copied!";
+    setTimeout(() => {
+      btn.innerText = "📋 Copy OTP";
+    }, 2000);
+  });
 }
 
-// 🌐 Language toggle
+// Auto refresh inbox
+setInterval(checkInbox, 5000);
+
+// Language toggle
 function toggleLanguage() {
   lang = lang === "en" ? "bn" : "en";
-
   document.getElementById("langBtn").innerText = lang === "en" ? "🌐 বাংলা" : "🌐 English";
   document.getElementById("title").innerText = lang === "en" ? "📨 OTP Email Reader" : "📨 ওটিপি ইমেইল রিডার";
   document.getElementById("randomBtn").innerText = lang === "en" ? "🔁 New Email" : "🔁 নতুন ইমেইল";
@@ -65,5 +62,12 @@ function toggleLanguage() {
   document.getElementById("otp").innerText = lang === "en" ? "🔐 Waiting for OTP..." : "🔐 ওটিপির জন্য অপেক্ষা করুন...";
 }
 
-// প্রথমেই ১টা email load হোক
-window.onload = generateRandomEmail;
+// Dark mode toggle
+function toggleTheme() {
+  document.body.classList.toggle("dark");
+  const btn = document.getElementById("themeToggle");
+  btn.innerText = document.body.classList.contains("dark") ? "☀️ Light Mode" : "🌙 Dark Mode";
+}
+
+// Initial load
+window.onload = generateEmail;
