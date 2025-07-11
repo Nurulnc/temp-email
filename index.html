@@ -6,25 +6,27 @@
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <h1>📨 OTP Email Reader</h1>
+  <div class="container">
+    <h1>📨 OTP Email Reader</h1>
 
-  <div id="email">⏳ Loading email...</div>
+    <div id="email">⏳ Loading email...</div>
 
-  <div class="controls">
-    <button onclick="generateRandomEmail()">🔁 Random Email</button>
-    <input type="text" id="customName" placeholder="Enter custom name" onkeydown="checkEnter(event)" />
-    <button onclick="generateCustomEmail()">✍️ Custom Email</button>
+    <div class="controls">
+      <button onclick="generateRandomEmail()">🔁 Random Email</button>
+      <input type="text" id="customName" placeholder="Enter custom name" onkeydown="checkEnter(event)" />
+      <button onclick="generateCustomEmail()">✍️ Custom Email</button>
+    </div>
+
+    <div class="controls">
+      <button onclick="checkInbox()">🔄 Refresh Inbox</button>
+    </div>
+
+    <div id="otp">🔐 Waiting for OTP...</div>
+
+    <footer>
+      Developed By <a href="https://instagram.com/nurulnc100" target="_blank">Nurul nc</a>
+    </footer>
   </div>
-
-  <div class="controls">
-    <button onclick="checkInbox()">🔄 Refresh Inbox</button>
-  </div>
-
-  <div id="otp">🔐 Waiting for OTP...</div>
-
-  <footer>
-    Developed By <a href="https://instagram.com/nurulnc100" target="_blank">Nurul nc</a>
-  </footer>
 
   <script src="script.js"></script>
 </body>
