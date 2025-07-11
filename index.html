@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>OTP Email Reader</title>
+  <title>OTP Email Reader (1secmail)</title>
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
@@ -14,6 +14,10 @@
     <button onclick="generateRandomEmail()">🔁 Random Email</button>
     <input type="text" id="customName" placeholder="Enter custom name" />
     <button onclick="generateCustomEmail()">✍️ Custom Email</button>
+  </div>
+
+  <div class="controls">
+    <button onclick="checkInbox()">🔄 Refresh Inbox</button>
   </div>
 
   <div id="otp">🔐 Waiting for OTP...</div>
