@@ -3,81 +3,87 @@ let token = "";
 let email = "";
 let password = "Test123456";
 
-// Helper function to get available domains
+// 1. Fetch available domain
 async function getDomain() {
   const res = await fetch(`${baseUrl}/domains`);
   const data = await res.json();
-  return data["hydra:member"][0].domain;
+  const domains = data["hydra:member"];
+  if (!domains || domains.length === 0) throw new Error("No domains available");
+  return domains[0].domain;
 }
 
+// 2. Create account
 async function createAccount() {
-  const domain = await getDomain();
-  email = `user${Date.now()}@${domain}`;
-
-  const res = await fetch(`${baseUrl}/accounts`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      address: email,
-      password: password,
-    }),
-  });
-
-  const data = await res.json();
-  
-  if (data["@id"]) {
-    document.getElementById("email").innerHTML = `📧 Your Temp Email: <b>${email}</b>`;
-  } else if (data.violations) {
-    document.getElementById("email").innerText = `❌ ${data.violations[0].message}`;
-  } else {
-    document.getElementById("email").innerText = "❌ Account creation failed.";
-    console.log(data);
+  try {
+    const domain = await getDomain();
+    email = `user${Date.now()}@${domain}`;
+    const res = await fetch(`${baseUrl}/accounts`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ address: email, password })
+    });
+    const data = await res.json();
+    if (res.ok) {
+      document.getElementById("email").innerHTML = `📧 Temp Email: <b>${email}</b>`;
+      return true;
+    } else {
+      throw new Error(data["hydra:description"] || JSON.stringify(data));
+    }
+  } catch (err) {
+    document.getElementById("email").innerText = `❌ Create account failed: ${err.message}`;
+    console.error("Create account error:", err);
+    return false;
   }
 }
 
+// 3. Login
 async function login() {
-  const res = await fetch(`${baseUrl}/token`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ address: email, password }),
-  });
-
-  const data = await res.json();
-  if (data.token) {
-    token = data.token;
-  } else {
-    console.log("Login failed", data);
-    document.getElementById("otp").innerText = "❌ Login failed.";
+  try {
+    const res = await fetch(`${baseUrl}/token`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ address: email, password })
+    });
+    const data = await res.json();
+    if (data.token) {
+      token = data.token;
+      return true;
+    } else {
+      throw new Error(JSON.stringify(data));
+    }
+  } catch (err) {
+    document.getElementById("otp").innerText = `❌ Login failed: ${err.message}`;
+    console.error("Login error:", err);
+    return false;
   }
 }
 
+// 4. Check messages
 async function checkEmails() {
   if (!token) return;
-
-  const res = await fetch(`${baseUrl}/messages`, {
-    headers: { Authorization: `Bearer ${token}` },
-  });
-
-  const data = await res.json();
-  if (data["hydra:member"] && data["hydra:member"].length > 0) {
-    const msgId = data["hydra:member"][0]["id"];
-    const msgRes = await fetch(`${baseUrl}/messages/${msgId}`, {
-      headers: { Authorization: `Bearer ${token}` },
-    });
-    const msg = await msgRes.json();
-
-    const otp = msg.text ? msg.text.match(/\b\d{4,8}\b/) : null;
-
-    document.getElementById("otp").innerHTML = otp
-      ? `🔐 OTP Found: <b>${otp[0]}</b>`
-      : `📭 Email received but no OTP found.`;
-  } else {
-    document.getElementById("otp").innerText = "📭 No mails received yet.";
+  try {
+    const res = await fetch(`${baseUrl}/messages`, { headers: { Authorization: `Bearer ${token}` } });
+    const data = await res.json();
+    if (data["hydra:member"].length) {
+      const msgId = data["hydra:member"][0].id;
+      const msg = await (await fetch(`${baseUrl}/messages/${msgId}`, { headers: { Authorization: `Bearer ${token}` } })).json();
+      const otpMatch = msg.text?.match(/\b\d{4,8}\b/);
+      document.getElementById("otp").innerHTML = otpMatch ? `🔐 OTP: <b>${otpMatch[0]}</b>` : `📭 Mail arrived, OTP not found.`;
+    } else {
+      document.getElementById("otp").innerText = "📭 No emails yet.";
+    }
+  } catch (err) {
+    console.error("Check emails error:", err);
   }
 }
 
+// 5. Main flow
 (async () => {
-  await createAccount();
-  await login();
-  setInterval(checkEmails, 7000); // Every 7 seconds
+  const created = await createAccount();
+  if (!created) return;
+
+  const loggedIn = await login();
+  if (!loggedIn) return;
+
+  setInterval(checkEmails, 7000);
 })();
