@@ -2,39 +2,149 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>OTP Email Reader</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <link rel="stylesheet" href="style.css" />
+  <title>Temp Email by Nurul Amin</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f7f7f7;
+      color: #222;
+      padding: 20px;
+      text-align: center;
+    }
+    h1 {
+      color: #333;
+    }
+    #email-box {
+      background: #fff;
+      padding: 12px 20px;
+      margin: 20px auto;
+      display: inline-block;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      font-weight: bold;
+      font-size: 1.1em;
+    }
+    button {
+      padding: 10px 16px;
+      margin: 10px 5px;
+      background: #007bff;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    button:hover {
+      background: #0056b3;
+    }
+    .msg {
+      border: 1px solid #ccc;
+      background: #fff;
+      padding: 10px;
+      margin: 10px auto;
+      max-width: 500px;
+      text-align: left;
+      border-radius: 8px;
+    }
+    #inbox {
+      margin-top: 20px;
+    }
+    #ads {
+      margin: 30px 0;
+    }
+    footer {
+      margin-top: 40px;
+      font-size: 0.9em;
+      color: #888;
+    }
+    a {
+      color: #007bff;
+      text-decoration: none;
+    }
+    @media(max-width: 600px){
+      body { padding: 10px; }
+    }
+  </style>
 </head>
 <body>
-  <div class="container">
+  <h1>📩 Temp Email</h1>
 
-    <!-- 🔼 Ad Top Placeholder -->
-    <div class="ad-box">[Top Ad]</div>
-
-    <h1>📨 OTP Email Reader</h1>
-
-    <div id="email">⏳ Generating email...</div>
-
-    <div class="controls">
-      <button onclick="generateEmail()">🔁 New Email</button>
-      <button onclick="fetchInbox()">🔄 Refresh Inbox</button>
-    </div>
-
-    <div id="otpContainer">
-      <div id="otp">🔐 Waiting for OTP...</div>
-      <button id="copyBtn" onclick="copyOTP()" style="display:none;">📋 Copy OTP</button>
-    </div>
-
-    <!-- 🔽 Ad Bottom Placeholder -->
-    <div class="ad-box">[Bottom Ad]</div>
-
-    <footer>
-      Developed by <a href="https://instagram.com/nurulnc100" target="_blank">Nurul nc</a>
-    </footer>
-
-    <audio id="otpSound" src="https://notificationsounds.com/storage/sounds/file-sounds-1142-pristine.mp3"></audio>
-    <script src="script.js"></script>
+  <div id="email-box">Generating email...</div>
+  <button onclick="refreshInbox()">🔄 Refresh Inbox</button>
+  
+  <div id="ads">
+    <!-- 🔰 Ad Placeholder -->
+    <p>[Ad Space Here]</p>
   </div>
+
+  <div id="inbox">
+    <h3>📥 Inbox</h3>
+    <div id="messages">Loading inbox...</div>
+  </div>
+
+  <footer>
+    Developed by <a href="https://instagram.com/nurulnc100" target="_blank">@nurulnc100</a>
+  </footer>
+
+  <!-- ✅ OTP Sound -->
+  <audio id="otpSound" src="https://notificationsounds.com/storage/sounds/file-sounds-1151-pristine.mp3" preload="auto"></audio>
+
+  <script>
+    let email = '';
+    let id = '';
+    let lastMessageId = '';
+
+    async function generateEmail() {
+      try {
+        const res = await fetch('https://api.tempmail.lol/generate');
+        const data = await res.json();
+        email = data.address;
+        id = data.id;
+        document.getElementById('email-box').innerText = email;
+        fetchInbox();
+      } catch (err) {
+        document.getElementById('email-box').innerText = '❌ Failed to generate email';
+      }
+    }
+
+    async function fetchInbox() {
+      if (!id) return;
+      try {
+        const res = await fetch(`https://api.tempmail.lol/mail/${id}`);
+        const data = await res.json();
+        const inboxDiv = document.getElementById('messages');
+        inboxDiv.innerHTML = '';
+
+        if (!data || data.length === 0) {
+          inboxDiv.innerHTML = '<p>No messages yet.</p>';
+        } else {
+          data.forEach(msg => {
+            inboxDiv.innerHTML += `
+              <div class="msg">
+                <strong>From:</strong> ${msg.from}<br>
+                <strong>Subject:</strong> ${msg.subject}<br>
+                <strong>OTP:</strong> ${msg.text}
+              </div>
+            `;
+          });
+
+          if (data[0].id !== lastMessageId) {
+            document.getElementById('otpSound').play();
+            lastMessageId = data[0].id;
+          }
+        }
+      } catch (err) {
+        document.getElementById('messages').innerHTML = '<p>❌ Failed to load inbox.</p>';
+      }
+    }
+
+    function refreshInbox() {
+      fetchInbox();
+    }
+
+    // Start
+    generateEmail();
+    setInterval(fetchInbox, 10000); // Auto-refresh every 10 sec
+  </script>
 </body>
 </html>
