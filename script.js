@@ -63,3 +63,9 @@ async function checkInbox() {
 
 // Load random email on page load
 generateRandomEmail();
+
+function checkEnter(e) {
+  if (e.key === "Enter") {
+    generateCustomEmail();
+  }
+}
