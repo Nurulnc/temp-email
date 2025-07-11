@@ -1,23 +1,23 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title>OTP Email Reader (1secmail)</title>
+  <meta charset="UTF-8">
+  <title>OTP Email Reader</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
   <div class="container">
-    <h1>📨 OTP Email Reader</h1>
+    <h1 id="title">📨 OTP Email Reader</h1>
+
+    <button id="themeToggle" onclick="toggleTheme()">🌙 Dark Mode</button>
+    <button onclick="toggleLanguage()" id="langBtn">🌐 বাংলা</button>
 
     <div id="email">⏳ Loading email...</div>
 
     <div class="controls">
-      <button onclick="generateRandomEmail()">🔁 Random Email</button>
-      <input type="text" id="customName" placeholder="Enter custom name" onkeydown="checkEnter(event)" />
-    </div>
-
-    <div class="controls">
-      <button onclick="checkInbox()">🔄 Refresh Inbox</button>
+      <button onclick="generateRandomEmail()" id="randomBtn">🔁 New Email</button>
+      <button onclick="checkInbox()" id="refreshBtn">🔄 Refresh Inbox</button>
     </div>
 
     <div id="otp">🔐 Waiting for OTP...</div>
@@ -25,8 +25,9 @@
     <footer>
       Developed By <a href="https://instagram.com/nurulnc100" target="_blank">Nurul nc</a>
     </footer>
-  </div>
 
-  <script src="script.js"></script>
+    <audio id="otpSound" src="https://notificationsounds.com/storage/sounds/file-sounds-1142-pristine.mp3"></audio>
+    <script src="script.js"></script>
+  </div>
 </body>
 </html>
