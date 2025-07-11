@@ -8,15 +8,16 @@
 </head>
 <body>
   <div class="container">
-    <h1 id="title">📨 OTP Email Reader</h1>
-
-    <button id="themeToggle" onclick="toggleTheme()">🌙 Dark Mode</button>
-    <button onclick="toggleLanguage()" id="langBtn">🌐 বাংলা</button>
+    <div class="header">
+      <button onclick="toggleLanguage()" id="langBtn">🌐 বাংলা</button>
+      <h1 id="title">📨 OTP Email Reader</h1>
+      <button id="themeToggle" onclick="toggleTheme()">🌙 Dark Mode</button>
+    </div>
 
     <div id="email">⏳ Loading email...</div>
 
     <div class="controls">
-      <button onclick="generateEmail()" id="randomBtn">🔁 New Email</button>
+      <button onclick="generateAccount()" id="randomBtn">🔁 New Email</button>
       <button onclick="checkInbox()" id="refreshBtn">🔄 Refresh Inbox</button>
     </div>
 
