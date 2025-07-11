@@ -1,7 +1,7 @@
 body {
-  font-family: Arial;
+  font-family: Arial, sans-serif;
   text-align: center;
-  background: #f9f9f9;
+  background: #f1f1f1;
   padding: 40px;
 }
 
@@ -38,7 +38,7 @@ h1 {
 }
 
 footer {
-  margin-top: 50px;
+  margin-top: 40px;
   font-size: 14px;
   color: #555;
 }
@@ -46,8 +46,4 @@ footer {
 footer a {
   color: #0077cc;
   text-decoration: none;
-}
-
-footer a:hover {
-  text-decoration: underline;
 }
