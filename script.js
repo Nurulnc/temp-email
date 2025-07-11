@@ -4,14 +4,11 @@ let lang = "en";
 
 async function generateAccount() {
   try {
-    console.log("Getting domains...");
+    console.log("Fetching domain...");
     const domainRes = await fetch("https://api.mail.tm/domains");
-    if (!domainRes.ok) throw new Error("Domain fetch failed: " + domainRes.status);
+    if (!domainRes.ok) throw new Error("Domain fetch failed");
     const domainData = await domainRes.json();
-    const domains = domainData["hydra:member"];
-    if (!domains || domains.length === 0) throw new Error("No domains found");
-    const domain = domains[0].domain;
-    console.log("Using domain:", domain);
+    const domain = domainData["hydra:member"][0].domain;
 
     const random = Math.random().toString(36).substring(2, 10);
     const email = `${random}@${domain}`;
@@ -23,23 +20,27 @@ async function generateAccount() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ address: email, password })
     });
-    if (!createRes.ok) {
+
+    if (createRes.status === 422) {
+      console.warn("Email already exists. Logging in...");
+    } else if (!createRes.ok) {
       const errorData = await createRes.json();
       throw new Error("Account creation failed: " + JSON.stringify(errorData));
     }
 
-    console.log("Getting token...");
+    // Get token (always attempt, even if account already existed)
     const tokenRes = await fetch("https://api.mail.tm/token", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ address: email, password })
     });
+
     if (!tokenRes.ok) {
       const errorData = await tokenRes.json();
       throw new Error("Token fetch failed: " + JSON.stringify(errorData));
     }
-    const tokenData = await tokenRes.json();
 
+    const tokenData = await tokenRes.json();
     token = tokenData.token;
     account = { email, password };
 
@@ -61,7 +62,9 @@ async function checkInbox() {
     const res = await fetch("https://api.mail.tm/messages", {
       headers: { Authorization: `Bearer ${token}` }
     });
+
     if (!res.ok) throw new Error("Inbox fetch failed: " + res.status);
+
     const data = await res.json();
 
     if (data["hydra:member"].length > 0) {
@@ -69,10 +72,12 @@ async function checkInbox() {
       const messageRes = await fetch(`https://api.mail.tm/messages/${message.id}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
-      if (!messageRes.ok) throw new Error("Message fetch failed: " + messageRes.status);
-      const fullMessage = await messageRes.json();
 
+      if (!messageRes.ok) throw new Error("Message fetch failed: " + messageRes.status);
+
+      const fullMessage = await messageRes.json();
       const otpMatch = fullMessage.text.match(/\d{4,8}/);
+
       if (otpMatch) {
         const otp = otpMatch[0];
         document.getElementById("otp").innerHTML = `✅ OTP: <b>${otp}</b>`;
@@ -80,7 +85,7 @@ async function checkInbox() {
         document.getElementById("copyBtn").setAttribute("data-otp", otp);
         document.getElementById("otpSound").play();
       } else {
-        document.getElementById("otp").innerText = lang === "bn" ? "❌ OTP পাওয়া যায়নি" : "❌ OTP not found";
+        document.getElementById("otp").innerText = lang === "bn" ? "❌ ওটিপি পাওয়া যায়নি" : "❌ OTP not found";
         document.getElementById("copyBtn").style.display = "none";
       }
     } else {
