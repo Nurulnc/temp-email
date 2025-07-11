@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <title>OTP Email Reader</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="style.css" />
@@ -16,11 +16,14 @@
     <div id="email">⏳ Loading email...</div>
 
     <div class="controls">
-      <button onclick="generateRandomEmail()" id="randomBtn">🔁 New Email</button>
+      <button onclick="generateEmail()" id="randomBtn">🔁 New Email</button>
       <button onclick="checkInbox()" id="refreshBtn">🔄 Refresh Inbox</button>
     </div>
 
-    <div id="otp">🔐 Waiting for OTP...</div>
+    <div id="otpContainer">
+      <div id="otp">🔐 Waiting for OTP...</div>
+      <button id="copyBtn" onclick="copyOTP()" style="display:none;">📋 Copy OTP</button>
+    </div>
 
     <footer>
       Developed By <a href="https://instagram.com/nurulnc100" target="_blank">Nurul nc</a>
