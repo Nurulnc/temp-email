@@ -3,22 +3,22 @@
 <head>
   <meta charset="UTF-8" />
   <title>OTP Email Reader</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
   <div class="container">
-    <div class="header">
-      <button onclick="toggleLanguage()" id="langBtn">🌐 বাংলা</button>
-      <h1 id="title">📨 OTP Email Reader</h1>
-      <button id="themeToggle" onclick="toggleTheme()">🌙 Dark Mode</button>
-    </div>
 
-    <div id="email">⏳ Loading email...</div>
+    <!-- 🔼 Ad Top Placeholder -->
+    <div class="ad-box">[Top Ad]</div>
+
+    <h1>📨 OTP Email Reader</h1>
+
+    <div id="email">⏳ Generating email...</div>
 
     <div class="controls">
-      <button onclick="generateAccount()" id="randomBtn">🔁 New Email</button>
-      <button onclick="checkInbox()" id="refreshBtn">🔄 Refresh Inbox</button>
+      <button onclick="generateEmail()">🔁 New Email</button>
+      <button onclick="fetchInbox()">🔄 Refresh Inbox</button>
     </div>
 
     <div id="otpContainer">
@@ -26,8 +26,11 @@
       <button id="copyBtn" onclick="copyOTP()" style="display:none;">📋 Copy OTP</button>
     </div>
 
+    <!-- 🔽 Ad Bottom Placeholder -->
+    <div class="ad-box">[Bottom Ad]</div>
+
     <footer>
-      Developed By <a href="https://instagram.com/nurulnc100" target="_blank">Nurul nc</a>
+      Developed by <a href="https://instagram.com/nurulnc100" target="_blank">Nurul nc</a>
     </footer>
 
     <audio id="otpSound" src="https://notificationsounds.com/storage/sounds/file-sounds-1142-pristine.mp3"></audio>
