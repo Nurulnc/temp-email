@@ -1,150 +1,41 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Temp Email by Nurul Amin</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: #f7f7f7;
-      color: #222;
-      padding: 20px;
-      text-align: center;
-    }
-    h1 {
-      color: #333;
-    }
-    #email-box {
-      background: #fff;
-      padding: 12px 20px;
-      margin: 20px auto;
-      display: inline-block;
-      border: 1px solid #ccc;
-      border-radius: 8px;
-      font-weight: bold;
-      font-size: 1.1em;
-    }
-    button {
-      padding: 10px 16px;
-      margin: 10px 5px;
-      background: #007bff;
-      color: white;
-      border: none;
-      border-radius: 6px;
-      cursor: pointer;
-    }
-    button:hover {
-      background: #0056b3;
-    }
-    .msg {
-      border: 1px solid #ccc;
-      background: #fff;
-      padding: 10px;
-      margin: 10px auto;
-      max-width: 500px;
-      text-align: left;
-      border-radius: 8px;
-    }
-    #inbox {
-      margin-top: 20px;
-    }
-    #ads {
-      margin: 30px 0;
-    }
-    footer {
-      margin-top: 40px;
-      font-size: 0.9em;
-      color: #888;
-    }
-    a {
-      color: #007bff;
-      text-decoration: none;
-    }
-    @media(max-width: 600px){
-      body { padding: 10px; }
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Temp Mail - Disposable Email</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
-  <h1>📩 Temp Email</h1>
-
-  <div id="email-box">Generating email...</div>
-  <button onclick="refreshInbox()">🔄 Refresh Inbox</button>
-  
-  <div id="ads">
-    <!-- 🔰 Ad Placeholder -->
-    <p>[Ad Space Here]</p>
-  </div>
-
-  <div id="inbox">
-    <h3>📥 Inbox</h3>
-    <div id="messages">Loading inbox...</div>
-  </div>
-
-  <footer>
-    Developed by <a href="https://instagram.com/nurulnc100" target="_blank">@nurulnc100</a>
-  </footer>
-
-  <!-- ✅ OTP Sound -->
-  <audio id="otpSound" src="https://notificationsounds.com/storage/sounds/file-sounds-1151-pristine.mp3" preload="auto"></audio>
-
-  <script>
-    let email = '';
-    let id = '';
-    let lastMessageId = '';
-
-    async function generateEmail() {
-      try {
-        const res = await fetch('https://api.tempmail.lol/generate');
-        const data = await res.json();
-        email = data.address;
-        id = data.id;
-        document.getElementById('email-box').innerText = email;
-        fetchInbox();
-      } catch (err) {
-        document.getElementById('email-box').innerText = '❌ Failed to generate email';
-      }
-    }
-
-    async function fetchInbox() {
-      if (!id) return;
-      try {
-        const res = await fetch(`https://api.tempmail.lol/mail/${id}`);
-        const data = await res.json();
-        const inboxDiv = document.getElementById('messages');
-        inboxDiv.innerHTML = '';
-
-        if (!data || data.length === 0) {
-          inboxDiv.innerHTML = '<p>No messages yet.</p>';
-        } else {
-          data.forEach(msg => {
-            inboxDiv.innerHTML += `
-              <div class="msg">
-                <strong>From:</strong> ${msg.from}<br>
-                <strong>Subject:</strong> ${msg.subject}<br>
-                <strong>OTP:</strong> ${msg.text}
-              </div>
-            `;
-          });
-
-          if (data[0].id !== lastMessageId) {
-            document.getElementById('otpSound').play();
-            lastMessageId = data[0].id;
-          }
-        }
-      } catch (err) {
-        document.getElementById('messages').innerHTML = '<p>❌ Failed to load inbox.</p>';
-      }
-    }
-
-    function refreshInbox() {
-      fetchInbox();
-    }
-
-    // Start
-    generateEmail();
-    setInterval(fetchInbox, 10000); // Auto-refresh every 10 sec
-  </script>
+    <div class="container">
+        <h1><i class="fas fa-envelope"></i> Temp Mail</h1>
+        <div class="email-box">
+            <input type="text" id="temp-email" readonly>
+            <button onclick="copyEmail()"><i class="fas fa-copy"></i> Copy</button>
+            <button onclick="generateEmail()"><i class="fas fa-sync-alt"></i> New</button>
+        </div>
+        <div class="inbox-controls">
+            <button onclick="fetchEmails()"><i class="fas fa-redo"></i> Refresh</button>
+            <span id="last-updated"></span>
+        </div>
+        <div class="inbox">
+            <h2><i class="fas fa-inbox"></i> Inbox</h2>
+            <div id="emails" class="email-list"></div>
+        </div>
+        <div class="email-viewer" id="email-viewer" style="display:none;">
+            <div class="email-header">
+                <h3 id="email-subject"></h3>
+                <button onclick="closeEmail()"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="email-meta">
+                <div><strong>From:</strong> <span id="email-from"></span></div>
+                <div><strong>To:</strong> <span id="email-to"></span></div>
+                <div><strong>Date:</strong> <span id="email-date"></span></div>
+            </div>
+            <div class="email-body" id="email-body"></div>
+        </div>
+    </div>
+    <script src="script.js"></script>
 </body>
 </html>
