@@ -1,41 +1,58 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Temp Mail - Disposable Email</title>
-    <link rel="stylesheet" href="style.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <title>Bangla TempMail</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .header {
+            background-color: #4CAF50;
+            color: white;
+            padding: 15px;
+            border-radius: 5px;
+            text-align: center;
+        }
+        .email-display {
+            background-color: white;
+            padding: 20px;
+            margin: 15px 0;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        .actions {
+            margin: 20px 0;
+        }
+        .inbox {
+            background-color: white;
+            border-radius: 5px;
+            padding: 15px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+    </style>
 </head>
 <body>
-    <div class="container">
-        <h1><i class="fas fa-envelope"></i> Temp Mail</h1>
-        <div class="email-box">
-            <input type="text" id="temp-email" readonly>
-            <button onclick="copyEmail()"><i class="fas fa-copy"></i> Copy</button>
-            <button onclick="generateEmail()"><i class="fas fa-sync-alt"></i> New</button>
-        </div>
-        <div class="inbox-controls">
-            <button onclick="fetchEmails()"><i class="fas fa-redo"></i> Refresh</button>
-            <span id="last-updated"></span>
-        </div>
-        <div class="inbox">
-            <h2><i class="fas fa-inbox"></i> Inbox</h2>
-            <div id="emails" class="email-list"></div>
-        </div>
-        <div class="email-viewer" id="email-viewer" style="display:none;">
-            <div class="email-header">
-                <h3 id="email-subject"></h3>
-                <button onclick="closeEmail()"><i class="fas fa-times"></i></button>
-            </div>
-            <div class="email-meta">
-                <div><strong>From:</strong> <span id="email-from"></span></div>
-                <div><strong>To:</strong> <span id="email-to"></span></div>
-                <div><strong>Date:</strong> <span id="email-date"></span></div>
-            </div>
-            <div class="email-body" id="email-body"></div>
-        </div>
+    <div class="header">
+        <h1>Bangla TempMail</h1>
+        <p>আপনার অস্থায়ী ইমেইল ঠিকানা</p>
     </div>
-    <script src="script.js"></script>
+
+    <div class="email-display">
+        <h2 id="email-address">username123@banglamail.net</h2>
+        <button onclick="generateNewEmail()">নতুন ইমেইল তৈরি করুন</button>
+    </div>
+
+    <div class="inbox">
+        <h3>ইনবক্স <span id="email-count">(0)</span></h3>
+        <button onclick="checkInbox()">ইনবক্স চেক করুন</button>
+        <div id="messages"></div>
+    </div>
+
+    <script src="app.js"></script>
 </body>
 </html>
