@@ -1,59 +1,101 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <link rel="stylesheet" href="style.css">
-    <title>Bangla TempMail</title>
-    <style>
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            max-width: 600px;
-            margin: 0 auto;
-            padding: 20px;
-            background-color: #f5f5f5;
-        }
-        .header {
-            background-color: #4CAF50;
-            color: white;
-            padding: 15px;
-            border-radius: 5px;
-            text-align: center;
-        }
-        .email-display {
-            background-color: white;
-            padding: 20px;
-            margin: 15px 0;
-            border-radius: 5px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-            text-align: center;
-        }
-        .actions {
-            margin: 20px 0;
-        }
-        .inbox {
-            background-color: white;
-            border-radius: 5px;
-            padding: 15px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Free Temp Mail - OTP Receiver</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f4f7fc;
+      color: #333;
+      text-align: center;
+      margin: 0;
+      padding: 0;
+    }
+    .container {
+      max-width: 500px;
+      margin: 50px auto;
+      padding: 20px;
+      background: #fff;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    h1 {
+      font-size: 24px;
+    }
+    .email-box {
+      margin: 20px 0;
+      font-weight: bold;
+      background: #f0f0f0;
+      padding: 10px;
+      border-radius: 5px;
+      word-break: break-all;
+    }
+    .messages {
+      margin-top: 30px;
+      text-align: left;
+    }
+    .message {
+      background: #e9f5ff;
+      margin-bottom: 15px;
+      padding: 10px;
+      border-left: 4px solid #007bff;
+      border-radius: 5px;
+    }
+    iframe.ad-box {
+      width: 100%;
+      height: 90px;
+      margin: 20px 0;
+      border: none;
+    }
+  </style>
 </head>
 <body>
-    <div class="header">
-        <h1>Bangla TempMail</h1>
-        <p>আপনার অস্থায়ী ইমেইল ঠিকানা</p>
-    </div>
+  <div class="container">
+    <h1>📩 Free Temp Mail</h1>
+    <div class="email-box" id="emailDisplay">Loading...</div>
 
-    <div class="email-display">
-        <h2 id="email-address">username123@banglamail.net</h2>
-        <button onclick="generateNewEmail()">নতুন ইমেইল তৈরি করুন</button>
-    </div>
+    <!-- Ad placeholder -->
+    <iframe class="ad-box" src="your-ad-link-here"></iframe>
 
-    <div class="inbox">
-        <h3>ইনবক্স <span id="email-count">(0)</span></h3>
-        <button onclick="checkInbox()">ইনবক্স চেক করুন</button>
-        <div id="messages"></div>
-    </div>
+    <div class="messages" id="messages"></div>
+  </div>
 
-    <script src="app.js"></script>
+  <script>
+    const domains = ["1secmail.com", "1secmail.org", "1secmail.net"];
+    const login = Math.random().toString(36).substring(2, 11);
+    const domain = domains[Math.floor(Math.random() * domains.length)];
+    const email = `${login}@${domain}`;
+    const emailDisplay = document.getElementById("emailDisplay");
+    const messagesBox = document.getElementById("messages");
+
+    emailDisplay.textContent = email;
+
+    function fetchInbox() {
+      fetch(`https://www.1secmail.com/api/v1/?action=getMessages&login=${login}&domain=${domain}`)
+        .then(res => res.json())
+        .then(messages => {
+          messagesBox.innerHTML = "";
+          if (messages.length === 0) {
+            messagesBox.innerHTML = "<p>No messages yet...</p>";
+            return;
+          }
+          messages.forEach(msg => {
+            fetch(`https://www.1secmail.com/api/v1/?action=readMessage&login=${login}&domain=${domain}&id=${msg.id}`)
+              .then(res => res.json())
+              .then(data => {
+                const div = document.createElement("div");
+                div.className = "message";
+                div.innerHTML = `<strong>From:</strong> ${data.from}<br><strong>Subject:</strong> ${data.subject}<br><pre>${data.textBody || data.htmlBody}</pre>`;
+                messagesBox.appendChild(div);
+              });
+          });
+        });
+    }
+
+    setInterval(fetchInbox, 5000);
+    fetchInbox();
+  </script>
 </body>
 </html>
